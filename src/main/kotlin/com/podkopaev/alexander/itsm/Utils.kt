@@ -12,9 +12,7 @@ fun requestToServer(url: String): String {
     var response = ""
     runBlocking {
         val client = HttpClient()
-        // Get the content of an URL.
-        response = client.get<String>(url)
-        // Once the previous request is done, get the content of an URL.
+        response = client.get(url)
         client.close()
     }
     return response

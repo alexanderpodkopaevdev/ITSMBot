@@ -1,6 +1,6 @@
-package com.podkopaev.alexander.itsm.model.naumen.KB
+package com.podkopaev.alexander.itsm.naumen.model
 
-import com.podkopaev.alexander.itsm.model.naumen.ItsmKb
+import com.podkopaev.alexander.itsm.globalitsm.model.ItsmKb
 
 class NaumenKB : ItsmKb() {
     data class KbInfo(

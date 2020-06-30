@@ -1,4 +1,4 @@
-package com.podkopaev.alexander.itsm.model.naumen
+package com.podkopaev.alexander.itsm.globalitsm.model
 
 abstract class ItsmKb {
     abstract class ItsmKbInfo(

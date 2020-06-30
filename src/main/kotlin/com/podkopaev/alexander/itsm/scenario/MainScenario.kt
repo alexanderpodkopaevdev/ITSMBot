@@ -5,9 +5,9 @@ import com.justai.jaicf.channel.yandexalice.alice
 import com.justai.jaicf.channel.yandexalice.api.alice
 import com.justai.jaicf.channel.yandexalice.api.model.Button
 import com.justai.jaicf.model.scenario.Scenario
-import com.podkopaev.alexander.itsm.ItsmServer
-import com.podkopaev.alexander.itsm.NaumenServer
-import com.podkopaev.alexander.itsm.model.naumen.ItsmKb
+import com.podkopaev.alexander.itsm.globalitsm.ItsmServer
+import com.podkopaev.alexander.itsm.naumen.NaumenServer
+import com.podkopaev.alexander.itsm.globalitsm.model.ItsmKb
 
 val LOG: Boolean = false
 

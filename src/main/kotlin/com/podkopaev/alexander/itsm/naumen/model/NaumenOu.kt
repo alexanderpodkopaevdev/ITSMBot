@@ -1,6 +1,6 @@
-package com.podkopaev.alexander.itsm.model.naumen.OU
+package com.podkopaev.alexander.itsm.naumen.model
 
-import com.podkopaev.alexander.itsm.model.naumen.ItsmOu
+import com.podkopaev.alexander.itsm.globalitsm.model.ItsmOu
 
 class NaumenOU : ItsmOu() {
     data class OuInfo(
