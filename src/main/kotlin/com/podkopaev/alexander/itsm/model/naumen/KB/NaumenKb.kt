@@ -1,6 +1,8 @@
-package com.podkopaev.alexander.naumen.model.KB
+package com.podkopaev.alexander.itsm.model.naumen.KB
 
-class KB {
+import com.podkopaev.alexander.itsm.model.naumen.ItsmKb
+
+class NaumenKB : ItsmKb() {
     data class KbInfo(
         val UUID: String,
         val author: Any,
@@ -26,7 +28,7 @@ class KB {
         val text: String,
         val title: String,
         val yourMark: Any
-    )
+    ) : ItsmKbInfo(text, title)
 
     data class Parent(
         val UUID: String,

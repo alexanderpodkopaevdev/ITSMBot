@@ -1,8 +1,8 @@
-package com.podkopaev.alexander.naumen
+package com.podkopaev.alexander.itsm
 
 import com.justai.jaicf.channel.http.httpBotRouting
 import com.justai.jaicf.channel.yandexalice.AliceChannel
-import com.podkopaev.alexander.naumen.Data.OAUTH_TOKEN
+import com.podkopaev.alexander.itsm.Data.OAUTH_TOKEN
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty

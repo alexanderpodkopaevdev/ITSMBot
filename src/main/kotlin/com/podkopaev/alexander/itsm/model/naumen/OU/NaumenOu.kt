@@ -1,6 +1,8 @@
-package com.podkopaev.alexander.naumen.model.OU
+package com.podkopaev.alexander.itsm.model.naumen.OU
 
-class OU {
+import com.podkopaev.alexander.itsm.model.naumen.ItsmOu
+
+class NaumenOU : ItsmOu() {
     data class OuInfo(
         val KEsInUse: List<Any>,
         val UUID: String,
@@ -23,7 +25,7 @@ class OU {
         val serviceCalls: List<Any>,
         val system_icon: Any,
         val title: String
-    )
+    ) : ItsmOuInfo(title)
 
     data class Icon(
         val UUID: String,
