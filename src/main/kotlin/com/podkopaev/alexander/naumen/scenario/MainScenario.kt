@@ -8,6 +8,7 @@ import com.justai.jaicf.channel.yandexalice.api.model.Button
 import com.justai.jaicf.model.scenario.Scenario
 import com.podkopaev.alexander.naumen.Data.ACCESS_KEY
 import com.podkopaev.alexander.naumen.Data.SERVER_URL
+import com.podkopaev.alexander.naumen.model.KB.KB
 import com.podkopaev.alexander.naumen.model.OU.OU
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -23,11 +24,22 @@ object MainScenario : Scenario() {
             }
 
             action {
+                reactions.alice?.sayRandom("Привет.", "Здравствуйте.", "Добрый день.")
+                reactions.go("/start")
+            }
+        }
+
+        state("start") {
+            activators {
+                event(AliceEvent.START)
+            }
+
+            action {
                 reactions.alice?.say(
-                    text = "Привет. Пока здесь мало функций, но давай попробуем что-нибудь сделать",
-                    tts = "Привет. Что будем делать?"
+                    text = "Что делаем?",
+                    tts = "Чем займемся?"
                 )
-                reactions.buttons("Создать заявку", "Найти отдел")
+                reactions.buttons("Создать заявку", "Найти отдел", "Открыть базу знаний")
             }
         }
 
@@ -39,28 +51,70 @@ object MainScenario : Scenario() {
             action {
                 reactions.run {
                     say("Расскажите о вашей проблеме. Начните с фразы \"У меня проблема\"")
-                    go("acceptCall")
                 }
             }
-        }
 
-        state("acceptCall") {
-            activators {
-                regex(".*проблема.*")
-            }
-            action {
-                val description = request.input.replace("у меня проблема", "")
-                //val responseCall = createCall(description)
-                val responseCall = "Operation completed successfull"
-                if (responseCall == "Operation completed successfull") {
+            state("acceptCall") {
+                lateinit var description: String
+                activators {
+                    catchAll()
+                }
+                action {
+                    description = request.alice?.request?.command.toString()
                     reactions.alice?.say(
-                        "Заявка зарегистрирована. ${request.alice?.request?.command}. В ближайшее время с вами свяжутся",
-                        "Ваша заявка успешно создана"
+                        "Проблема: ${request.alice?.request?.command}. Регистрируем заявку?",
+                        "Всё верно? Регистрируем заявку?"
                     )
+                    reactions.buttons("Да", "Нет")
 
-                } else {
-                    reactions.alice?.say("Попробуйте еще раз", "Что-то пошло не так...")
-                    reactions.go("main")
+                }
+
+                state("creatingCall") {
+                    activators {
+                        regex("да")
+                    }
+
+                    action {
+//                        Заглушка создания заявки
+                    val responseCall = createCall(description)
+//                        val responseCall = "Operation completed successfull"
+                        if (responseCall == "Operation completed successfull") {
+                            reactions.alice?.say(
+                                "Заявка зарегистрирована. В ближайшее время с вами свяжутся",
+                                "Ваша заявка успешно создана"
+                            )
+                            reactions.alice?.say(
+                                "Хотите сделать что-то еще?"
+                            )
+                            reactions.buttons("Да", "Нет")
+
+                        } else {
+                            reactions.alice?.say("Попробуйте еще раз", "Что-то пошло не так...")
+                            reactions.go("/main/createCall")
+                        }
+                    }
+
+                    state("continue") {
+                        activators {
+                            regex("да")
+                        }
+
+                        action {
+                            reactions.alice?.say("Отлично", "Отлично")
+                            reactions.go("/start")
+                        }
+                    }
+                }
+
+                state("notCreatingCall") {
+                    activators {
+                        regex("нет")
+                    }
+
+                    action {
+                        reactions.alice?.say("Хорошо, заявку не делаем", "Хорошо. Не создаем")
+                        reactions.go("/start")
+                    }
                 }
             }
         }
@@ -73,7 +127,6 @@ object MainScenario : Scenario() {
 
             action {
                 reactions.say("Скажите название отдела.")
-
             }
 
             state("find") {
@@ -85,7 +138,7 @@ object MainScenario : Scenario() {
                 action {
                     reactions.run {
                         val title = request.input.replace("отдел", "")
-                        val ou : List<OU.OuInfo> =
+                        val ou: List<OU.OuInfo> =
                             findOU(title)
                         when {
                             ou.isEmpty() -> {
@@ -96,16 +149,75 @@ object MainScenario : Scenario() {
                             }
                             else -> {
                                 alice?.say("Найдены отделы")
-                                val titleOus : Array<Button> = (ou.map {Button(it.title, hide = false)}).toTypedArray()
+                                val titleOus: Array<Button> = (ou.map { Button(it.title, hide = false) }).toTypedArray()
                                 alice?.buttons(*titleOus)
                             }
                         }
-//                    sayRandom(
-//                        "Ваш донос зарегистрирован под номером ${random(1000, 9000)}.",
-//                        "Оставайтесь на месте. Не трогайте вещественные доказательства."
-//                    )
-//                    say("У вас есть еще какая-нибудь информация?")
-//                    buttons("Да", "Нет")
+                    }
+                }
+            }
+        }
+
+        state("knowledgeBase") {
+            activators {
+                regex(".*база знаний.*")
+                regex(".*базу знаний.*")
+            }
+            action {
+                reactions.say("Какую статью будем искать?")
+            }
+            state("findArticle") {
+                activators {
+                    catchAll()
+                }
+                lateinit var article: List<KB.KbInfo>
+
+                action {
+                    reactions.run {
+                        val title = request.input.replace("как", "").replace("?","")
+                        article = findArticle(title)
+//
+//                                https://softline-presale.itsm365.com/sd/services/rest/search/KB$KBArticle/%7Btitle:%D0%B7%D0%B0%D1%8F%D0%B2%D0%BA%D0%B0%7D?accessKey=589caa54-2528-45c3-b16c-86be9f2081c5
+//                                https://softline-presale.itsm365.com/sd/services/rest/search/KB$KBArticle/%7Btext:%D1%8D%D1%82%D0%BE%D0%B9%7D?accessKey=589caa54-2528-45c3-b16c-86be9f2081c5
+//
+//                        https://softline-presale.itsm365.com/sd/services/rest/get/KB$2409401?accessKey=589caa54-2528-45c3-b16c-86be9f2081c5
+                        when {
+                            article.isEmpty() -> {
+                                alice?.say("Не найдено. Попробуйте переформулировать", "Ничего не нашла")
+                            }
+                            article.size == 1 -> {
+                                alice?.say(
+                                    "Название статьи: ${article[0].title}. Читать?",
+                                    "Статья ${article[0].title}. Будем читать?"
+                                )
+                                buttons("Да", "Нет")
+                            }
+                            else -> {
+                                alice?.say("Найдено несколько статей. Какую выбрать?")
+                                val titleOus: Array<Button> =
+                                    (article.map { Button(it.title, hide = false) }).toTypedArray()
+                                alice?.buttons(*titleOus)
+                            }
+                        }
+                    }
+                }
+
+                state("readArticle") {
+                    activators {
+                        regex("да")
+                    }
+                    action {
+                        reactions.say("${article[0].text}")
+                        reactions.say("\nЧто-нибудь еще?")
+                    }
+
+                    state("readArticle") {
+                        activators {
+                            regex("да")
+                        }
+                        action {
+                            reactions.go("/start")
+                        }
                     }
                 }
 
@@ -142,7 +254,7 @@ object MainScenario : Scenario() {
     }
 }
 
-private fun createCall(input: String): Any {
+private fun createCall(input: String?): Any {
     val fqn = "serviceCall"
     val attr = """
 {"title":"new",
@@ -172,6 +284,7 @@ private fun findOU(text: String?): List<OU.OuInfo> {
     val listOus = responseString.replace("[", "").replace("]", "").split(",")
     val ous = mutableListOf<OU.OuInfo>()
     for (ou in listOus) {
+        if (ou.isNullOrEmpty()) break
         val getOuUrl =
             "$SERVER_URL/services/rest/get/${ou.replace(
                 "\"",
@@ -181,6 +294,25 @@ private fun findOU(text: String?): List<OU.OuInfo> {
         ous.add(Gson().fromJson(responseString, OU.OuInfo::class.java))
     }
     return ous
+}
+
+private fun findArticle(text: String?): List<KB.KbInfo> {
+    val findArticleUrl =
+        "$SERVER_URL/services/rest/search/KB\$KBArticle/%7Btitle:\"${text}\"%7D/?$ACCESS_KEY"
+    var responseString = requestToServer(findArticleUrl)
+    val listArticles = responseString.replace("[", "").replace("]", "").split(",")
+    val articles = mutableListOf<KB.KbInfo>()
+    for (article in listArticles) {
+        if (article.isNullOrEmpty()) break
+        val getArticleUrl =
+            "$SERVER_URL/services/rest/get/${article.replace(
+                "\"",
+                ""
+            )}?$ACCESS_KEY"
+        responseString = requestToServer(getArticleUrl)
+        articles.add(Gson().fromJson(responseString, KB.KbInfo::class.java))
+    }
+    return articles
 }
 
 
