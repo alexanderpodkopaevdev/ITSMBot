@@ -9,7 +9,7 @@ import com.podkopaev.alexander.itsm.globalitsm.ItsmServer
 import com.podkopaev.alexander.itsm.naumen.NaumenServer
 import com.podkopaev.alexander.itsm.globalitsm.model.ItsmKb
 
-val LOG: Boolean = false
+val LOG: Boolean = true
 
 object MainScenario : Scenario() {
     init {
@@ -46,7 +46,7 @@ object MainScenario : Scenario() {
 
             action {
                 reactions.run {
-                    say("Расскажите о вашей проблеме. Начните с фразы \"У меня проблема\"")
+                    say("Расскажите о вашей проблеме")
                 }
             }
 
@@ -109,7 +109,7 @@ object MainScenario : Scenario() {
                     }
 
                     action {
-                        reactions.alice?.say("Хорошо, заявку не делаем", "Хорошо. Не создаем")
+                        reactions.alice?.say("Хорошо, заявку не делаем\n", "Хорошо. Не создаем")
                         reactions.go("/start")
                     }
                 }
@@ -136,17 +136,19 @@ object MainScenario : Scenario() {
                     reactions.run {
                         val title = request.input.replace("отдел", "")
                         val ou = server.findOU(title)
+                        if (LOG) println(ou.toString())
                         when {
                             ou.isEmpty() -> {
                                 alice?.say("Не найдено. Проверьте название", "Ничего не нашла")
                             }
                             ou.size == 1 -> {
-                                alice?.say("Название отдела: ${ou[0].ouTitle}", "Отдел ${ou[0].ouTitle}")
+                                alice?.say("Название отдела: ${ou[0].title}", "Отдел ${ou[0].title}")
                             }
                             else -> {
                                 alice?.say("Найдены отделы")
+                                if (LOG) println(ou[0].title)
                                 val titleOus: Array<Button> =
-                                    (ou.map { Button(it.ouTitle, hide = false) }).toTypedArray()
+                                    (ou.map { Button(it.title, hide = false) }).toTypedArray()
                                 alice?.buttons(*titleOus)
                             }
                         }
@@ -179,15 +181,15 @@ object MainScenario : Scenario() {
                             }
                             article.size == 1 -> {
                                 alice?.say(
-                                    "Название статьи: ${article[0].kbTitle}. Читать?",
-                                    "Статья ${article[0].kbTitle}. Будем читать?"
+                                    "Название статьи: ${article[0].title}. Читать?",
+                                    "Статья ${article[0].title}. Будем читать?"
                                 )
                                 buttons("Да", "Нет")
                             }
                             else -> {
                                 alice?.say("Найдено несколько статей. Какую выбрать?")
                                 val titleOus: Array<Button> =
-                                    (article.map { Button(it.kbTitle, hide = false) }).toTypedArray()
+                                    (article.map { Button(it.title, hide = false) }).toTypedArray()
                                 alice?.buttons(*titleOus)
                             }
                         }
@@ -199,7 +201,7 @@ object MainScenario : Scenario() {
                         regex("да")
                     }
                     action {
-                        reactions.say("${article[0].kbText}")
+                        reactions.say("${article[0].text}")
                         reactions.say("\nЧто-нибудь еще?")
                     }
 

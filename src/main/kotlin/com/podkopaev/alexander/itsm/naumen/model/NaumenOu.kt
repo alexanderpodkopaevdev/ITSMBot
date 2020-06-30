@@ -3,7 +3,7 @@ package com.podkopaev.alexander.itsm.naumen.model
 import com.podkopaev.alexander.itsm.globalitsm.model.ItsmOu
 
 class NaumenOU : ItsmOu() {
-    data class OuInfo(
+    data class NaumenOuInfo(
         val KEsInUse: List<Any>,
         val UUID: String,
         val adress: Any,
@@ -23,9 +23,12 @@ class NaumenOU : ItsmOu() {
         val removalDate: Any,
         val removed: Boolean,
         val serviceCalls: List<Any>,
-        val system_icon: Any,
-        val title: String
-    ) : ItsmOuInfo(title)
+        val system_icon: Any
+    ) : ItsmOuInfo() {
+        init {
+            super.title = metaClass
+        }
+    }
 
     data class Icon(
         val UUID: String,

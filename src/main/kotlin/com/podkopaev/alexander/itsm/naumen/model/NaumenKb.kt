@@ -3,7 +3,7 @@ package com.podkopaev.alexander.itsm.naumen.model
 import com.podkopaev.alexander.itsm.globalitsm.model.ItsmKb
 
 class NaumenKB : ItsmKb() {
-    data class KbInfo(
+    data class NaumenKbInfo(
         val UUID: String,
         val author: Any,
         val avMark: Any,
@@ -25,10 +25,8 @@ class NaumenKB : ItsmKb() {
         val responsibleTeam: Any,
         val services: List<Any>,
         val system_icon: Any,
-        val text: String,
-        val title: String,
         val yourMark: Any
-    ) : ItsmKbInfo(text, title)
+    ) : ItsmKbInfo()
 
     data class Parent(
         val UUID: String,
