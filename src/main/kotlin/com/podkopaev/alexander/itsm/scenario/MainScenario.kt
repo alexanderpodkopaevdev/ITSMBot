@@ -4,6 +4,8 @@ import com.justai.jaicf.channel.yandexalice.AliceEvent
 import com.justai.jaicf.channel.yandexalice.alice
 import com.justai.jaicf.channel.yandexalice.api.alice
 import com.justai.jaicf.channel.yandexalice.api.model.Button
+import com.justai.jaicf.channel.yandexalice.api.model.Image
+import com.justai.jaicf.channel.yandexalice.api.model.ItemsList
 import com.justai.jaicf.model.scenario.Scenario
 import com.podkopaev.alexander.itsm.globalitsm.ItsmServer
 import com.podkopaev.alexander.itsm.naumen.NaumenServer
@@ -21,203 +23,219 @@ object MainScenario : Scenario() {
 
             action {
                 reactions.alice?.sayRandom("Привет.", "Здравствуйте.", "Добрый день.")
-                reactions.go("/start")
-            }
-        }
-
-        state("start") {
-            activators {
-                event(AliceEvent.START)
+                reactions.go("/main/start")
             }
 
-            action {
-                reactions.alice?.say(
-                    text = "Что делаем?",
-                    tts = "Чем займемся?"
-                )
-                reactions.buttons("Создать заявку", "Найти отдел", "Открыть базу знаний")
-            }
-        }
-
-        state("createCall") {
-            activators {
-                regex("создать заявку")
-            }
-
-            action {
-                reactions.run {
-                    say("Расскажите о вашей проблеме")
-                }
-            }
-
-            state("acceptCall") {
-                lateinit var description: String
+            state("start") {
                 activators {
-                    catchAll()
+                    event(AliceEvent.START)
                 }
+
                 action {
-                    description = request.alice?.request?.command.toString()
                     reactions.alice?.say(
-                        "Проблема: ${request.alice?.request?.command}. Регистрируем заявку?",
-                        "Всё верно? Регистрируем заявку?"
+                        text = "Что делаем?",
+                        tts = "Чем займемся?"
                     )
-                    reactions.buttons("Да", "Нет")
-
+                    reactions.buttons("Создать заявку", "Найти отдел", "Открыть базу знаний")
                 }
 
-                state("creatingCall") {
+                state("createCall") {
                     activators {
-                        regex("да")
+                        regex("создать заявку")
                     }
 
                     action {
-//                        Заглушка создания заявки
-//                        val responseCall = "Operation completed successfull"
+                        reactions.run {
+                            say("Расскажите о вашей проблеме")
+                        }
+                    }
 
-                        val responseCall = server.createCall(description)
-                        if (responseCall == "Operation completed successfull") {
+                    state("acceptCall") {
+                        lateinit var description: String
+                        activators {
+                            catchAll()
+                        }
+                        action {
+                            description = request.alice?.request?.command.toString()
+                            reactions.say(context.dialogContext.backStateStack.toString())
+
                             reactions.alice?.say(
-                                "Заявка зарегистрирована. В ближайшее время с вами свяжутся",
-                                "Ваша заявка успешно создана"
-                            )
-                            reactions.alice?.say(
-                                "Хотите сделать что-то еще?"
+                                "Проблема: ${request.alice?.request?.command}. Регистрируем заявку?",
+                                "Всё верно? Регистрируем заявку?"
                             )
                             reactions.buttons("Да", "Нет")
 
-                        } else {
-                            reactions.alice?.say("Попробуйте еще раз", "Что-то пошло не так...")
-                            reactions.go("/main/createCall")
-                        }
-                    }
-
-                    state("continue") {
-                        activators {
-                            regex("да")
                         }
 
-                        action {
-                            reactions.alice?.say("Отлично", "Отлично")
-                            reactions.go("/start")
+                        state("creatingCall") {
+                            activators {
+                                regex("да")
+                            }
+
+                            action {
+//                        Заглушка создания заявки
+                        val responseCall = "Operation completed successfull"
+
+//                                val responseCall = server.createCall(description)
+                                if (responseCall == "Operation completed successfull") {
+                                    reactions.alice?.say(
+                                        "Заявка зарегистрирована. В ближайшее время с вами свяжутся",
+                                        "Ваша заявка успешно создана"
+                                    )
+                                    reactions.alice?.say(
+                                        "Хотите сделать что-то еще?"
+                                    )
+                                    reactions.buttons("Да", "Нет")
+
+                                } else {
+                                    reactions.alice?.say("Попробуйте еще раз", "Что-то пошло не так...")
+                                    reactions.go("/main/start/createCall")
+                                }
+                            }
+
+                            state("continue") {
+                                activators {
+                                    regex("да")
+                                }
+
+                                action {
+                                    reactions.alice?.say("Отлично", "Отлично")
+                                    reactions.go("/main/start")
+                                }
+                            }
+                        }
+
+                        state("notCreatingCall") {
+                            activators {
+                                regex("нет")
+                            }
+
+                            action {
+                                reactions.alice?.say("Хорошо, заявку не делаем\n", "Хорошо. Не создаем")
+                                reactions.go("/main/start")
+                            }
                         }
                     }
                 }
 
-                state("notCreatingCall") {
+                state("findOU") {
                     activators {
-                        regex("нет")
+                        regex("найти отдел")
                     }
 
                     action {
-                        reactions.alice?.say("Хорошо, заявку не делаем\n", "Хорошо. Не создаем")
-                        reactions.go("/start")
+                        reactions.say("Скажите название отдела.")
                     }
-                }
-            }
-        }
 
-
-        state("findOU") {
-            activators {
-                regex("найти отдел")
-            }
-
-            action {
-                reactions.say("Скажите название отдела.")
-            }
-
-            state("find") {
-                activators {
-                    regex(".*отдел.*")
-                    //regex(".*")
-                }
-
-                action {
-                    reactions.run {
-                        val title = request.input.replace("отдел", "")
-                        val ou = server.findOU(title)
-                        if (LOG) println(ou.toString())
-                        when {
-                            ou.isEmpty() -> {
-                                alice?.say("Не найдено. Проверьте название", "Ничего не нашла")
-                            }
-                            ou.size == 1 -> {
-                                alice?.say("Название отдела: ${ou[0].title}", "Отдел ${ou[0].title}")
-                            }
-                            else -> {
-                                alice?.say("Найдены отделы")
-                                if (LOG) println(ou[0].title)
-                                val titleOus: Array<Button> =
-                                    (ou.map { Button(it.title, hide = false) }).toTypedArray()
-                                alice?.buttons(*titleOus)
-                            }
+                    state("find") {
+                        activators {
+                            //regex(".*отдел.*")
+                            regex(".*")
                         }
-                    }
-                }
-            }
-        }
 
-        state("knowledgeBase") {
-            activators {
-                regex(".*база знаний.*")
-                regex(".*базу знаний.*")
-            }
-            action {
-                reactions.say("Какую статью будем искать?")
-            }
-            state("findArticle") {
-                activators {
-                    catchAll()
-                }
-                lateinit var article: List<ItsmKb.ItsmKbInfo>
-
-                action {
-                    reactions.run {
-                        val title = request.input.replace("как", "").replace("?", "")
-                        article = server.findArticle(title)
-                        when {
-                            article.isEmpty() -> {
-                                alice?.say("Не найдено. Попробуйте переформулировать", "Ничего не нашла")
-                            }
-                            article.size == 1 -> {
-                                alice?.say(
-                                    "Название статьи: ${article[0].title}. Читать?",
-                                    "Статья ${article[0].title}. Будем читать?"
-                                )
-                                buttons("Да", "Нет")
-                            }
-                            else -> {
-                                alice?.say("Найдено несколько статей. Какую выбрать?")
-                                val titleOus: Array<Button> =
-                                    (article.map { Button(it.title, hide = false) }).toTypedArray()
-                                alice?.buttons(*titleOus)
+                        action {
+                            reactions.run {
+                                val title = request.input.replace("отдел", "")
+                                val ou = server.findOU(title)
+                                if (LOG) println(ou.toString())
+                                when {
+                                    ou.isEmpty() -> {
+                                        alice?.say("Не найдено. Проверьте название", "Ничего не нашла")
+                                    }
+                                    ou.size == 1 -> {
+                                        alice?.say("Название отдела: ${ou[0].title}", "Отдел ${ou[0].title}")
+                                    }
+                                    else -> {
+                                        alice?.say("Найдены отделы")
+                                        //https://lh3.googleusercontent.com/proxy/A1Mm4C6TzlzTGigZOnPsq3uQ8UHTq6djlgio8grjgORtMCO2MoBfQ_xMqvYxeXtPPaMGdGwGM5WhITpC
+                                        if (LOG) println(ou[0].title)
+                                        val titleOus: Array<Button> =
+                                            (ou.map { Button(it.title, hide = false) }).toTypedArray()
+                                        alice?.buttons(*titleOus)
+                                    }
+                                }
                             }
                         }
                     }
                 }
 
-                state("readArticle") {
+                state("knowledgeBase") {
                     activators {
-                        regex("да")
+                        regex(".*база знаний.*")
+                        regex(".*базу знаний.*")
                     }
                     action {
-                        reactions.say("${article[0].text}")
-                        reactions.say("\nЧто-нибудь еще?")
+                        reactions.say("Какую статью будем искать?")
                     }
-
-                    state("readArticle") {
+                    state("findArticle") {
                         activators {
-                            regex("да")
+                            catchAll()
                         }
+                        lateinit var articles: List<ItsmKb.ItsmKbInfo>
+
                         action {
-                            reactions.go("/start")
+                            reactions.run {
+
+                                val title = request.input.replace("как", "").replace("?", "")
+                                articles = server.findArticle(title)
+                                when {
+                                    articles.isEmpty() -> {
+                                        alice?.say("Не найдено. Попробуйте переформулировать", "Ничего не нашла")
+                                    }
+                                    articles.size == 1 -> {
+                                        alice?.say(
+                                            "Название статьи: ${articles[0].title}. Читать?",
+                                            "Статья ${articles[0].title}. Будем читать?"
+                                        )
+                                        buttons("Да", "Нет")
+                                    }
+                                    else -> {
+                                        alice?.say("Найдено несколько статей. Какую выбрать?")/*
+                                val itemsArticle: MutableList<Image> = mutableListOf()
+                                for (article in articles) {
+                                    itemsArticle.add(
+                                        Image(
+                                            alice?.api?.getImageId("https://c7.hotpng.com/preview/967/314/354/knowledge-sharing-share-icon-knowledge-base-computer-icons-knowledge-vector.jpg").toString(),
+                                            article.title
+                                        )
+                                    )
+                                }
+                                alice?.itemsList(header = "Статьи")
+                                    ?.items?.addAll(itemsArticle)*/
+                                        val titleOus: Array<Button> =
+                                            (articles.map { Button(it.title, hide = false) }).toTypedArray()
+                                        alice?.buttons(*titleOus)
+//                                go("/knowledgeBase/findArticle")
+                                    }
+                                }
+                            }
                         }
+
+                        state("readArticle") {
+                            activators {
+                                regex("да")
+                            }
+                            action {
+                                reactions.say("${articles[0].text}")
+                                reactions.say("\nЧто-нибудь еще?")
+                            }
+
+                            state("readArticle") {
+                                activators {
+                                    regex("да")
+                                }
+                                action {
+                                    reactions.go("/main/start")
+                                }
+                            }
+                        }
+
+
                     }
                 }
-
-
             }
         }
+
 
         state("no") {
             activators {
@@ -225,6 +243,7 @@ object MainScenario : Scenario() {
                 regex("Нет")
                 regex("отбой")
                 regex("спасибо")
+                regex("выйти")
             }
 
             action {
@@ -232,8 +251,6 @@ object MainScenario : Scenario() {
                 reactions.alice?.endSession()
             }
         }
-
-
 
         state("fallback", noContext = true) {
             activators {
