@@ -13,3 +13,10 @@ abstract class ItsmOu {
         var title: String = ""
     }
 }
+
+abstract class ItsmCall {
+    abstract class ItsmServiceCall {
+        var title: String = ""
+        var state: String = ""
+    }
+}

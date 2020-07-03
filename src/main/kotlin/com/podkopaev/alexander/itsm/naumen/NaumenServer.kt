@@ -3,6 +3,7 @@ package com.podkopaev.alexander.itsm.naumen
 import com.google.gson.Gson
 import com.podkopaev.alexander.itsm.globalitsm.ItsmServer
 import com.podkopaev.alexander.itsm.convertJsonToList
+import com.podkopaev.alexander.itsm.naumen.model.NaumenCall
 import com.podkopaev.alexander.itsm.naumen.model.NaumenKB
 import com.podkopaev.alexander.itsm.naumen.model.NaumenOU
 import com.podkopaev.alexander.itsm.requestToServer
@@ -72,5 +73,27 @@ $input",
             articles.add(Gson().fromJson(responseString, NaumenKB.NaumenKbInfo::class.java))
         }
         return articles
+    }
+
+    override fun findCall(text: String?) : List<NaumenCall.NaumenServiceCall> {
+        val findCallUrl =
+            "${NaumenData.SERVER_URL}/services/rest/search/serviceCall/%7Bnumber:\"${text}\"%7D/?${NaumenData.ACCESS_KEY}"
+        var responseString = requestToServer(findCallUrl)
+        val listCalls = convertJsonToList(responseString)
+        val calls = mutableListOf<NaumenCall.NaumenServiceCall>()
+        for (call in listCalls) {
+            if (call.isNullOrEmpty()) break
+            val getArticleUrl =
+                "${NaumenData.SERVER_URL}/services/rest/get/${call.replace(
+                    "\"",
+                    ""
+                )}?${NaumenData.ACCESS_KEY}"
+            responseString = requestToServer(getArticleUrl)
+            calls.add(Gson().fromJson(responseString, NaumenCall.NaumenServiceCall::class.java))
+        }
+        return calls
+        // https://softline-presale.itsm365.com/sd/services/rest/search/serviceCall/%7Bnumber:80%7D/?accessKey=589caa54-2528-45c3-b16c-86be9f2081c5
+        // https://softline-presale.itsm365.com/sd/services/rest/get/serviceCall$2377209/?accessKey=589caa54-2528-45c3-b16c-86be9f2081c5
+
     }
 }
