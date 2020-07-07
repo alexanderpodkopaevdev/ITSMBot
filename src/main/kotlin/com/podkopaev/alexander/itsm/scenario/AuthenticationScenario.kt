@@ -14,9 +14,11 @@ import me.ivmg.telegram.entities.KeyboardReplyMarkup
 
 object AuthenticationScenario : Scenario() {
     const val state = "/authentication"
-    private var userSD: ItsmEmployee.ItsmEmployeeInfo? = null
+    var userSD: ItsmEmployee.ItsmEmployeeInfo? = null
+
 
     init {
+
         state(state) {
             action {
                 val message = request.telegram?.message

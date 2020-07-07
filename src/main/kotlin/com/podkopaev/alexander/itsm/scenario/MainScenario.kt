@@ -22,11 +22,14 @@ object MainScenario :
 
     val LOG: Boolean = true
     val server: ItsmServer = NaumenServer()
+
     lateinit var userUUID: String
     lateinit var userName: String
     lateinit var userAccessKey: String
 
     init {
+
+
         state("main") {
             activators {
                 event(AliceEvent.START)
@@ -111,6 +114,22 @@ object MainScenario :
 
                     action {
                         reactions.go(CheckCallState.state)
+                    }
+                }
+
+                state("showMe") {
+                    activators {
+                        regex("покажи меня")
+
+                    }
+                    action {
+                        val message = request.telegram?.message
+
+                            if (LOG) println("find user ${message?.from?.id}")
+                            if (LOG) println("chat ID ${message}")
+                            if (LOG) println("chat ID ${message?.chat}")
+
+                            reactions.go("/main/start/")
                     }
                 }
             }
