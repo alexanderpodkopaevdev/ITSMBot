@@ -50,9 +50,9 @@ object CreateCallScenario : Scenario() {
 
                     action {
 //                        Заглушка создания заявки
-                        val responseCall = "Operation completed successfull"
+//                        val responseCall = "Operation completed successfull"
 
-//                                val responseCall = server.createCall(description)
+                                val responseCall = server.createCall(description)
                         if (responseCall == "Operation completed successfull") {
                             reactions.alice?.say(
                                 "Заявка зарегистрирована. В ближайшее время с вами свяжутся",

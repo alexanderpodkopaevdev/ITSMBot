@@ -20,3 +20,14 @@ abstract class ItsmCall {
         var state: String = ""
     }
 }
+
+abstract class ItsmEmployee {
+    abstract class ItsmEmployeeInfo {
+        var UUID: String = ""
+        var mobilePhoneNumber: String = ""
+        var telegram: String = ""
+        var title: String = ""
+        var accessKey: String = ""
+
+    }
+}

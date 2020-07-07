@@ -1,9 +1,11 @@
 package com.podkopaev.alexander.itsm.scenario
 
+import com.justai.jaicf.channel.telegram.contact
 import com.justai.jaicf.channel.telegram.telegram
 import com.justai.jaicf.channel.yandexalice.alice
 import com.justai.jaicf.channel.yandexalice.api.model.Button
 import com.justai.jaicf.model.scenario.Scenario
+import com.podkopaev.alexander.itsm.scenario.MainScenario.LOG
 
 object CheckCallState : Scenario() {
     const val state = "/checkingState"
@@ -34,6 +36,7 @@ object CheckCallState : Scenario() {
                                     "\nХотите сделать что-то еще?"
                                 )
                                 reactions.buttons("Да", "Нет")
+                                reactions.telegram?.say(request.telegram?.contact.toString())
 
                                 reactions.telegram?.say(
                                     "\nХотите сделать что-то еще?",

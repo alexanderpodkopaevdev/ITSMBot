@@ -22,7 +22,7 @@ object FindKnowledgeBase : Scenario() {
                 lateinit var articles: List<ItsmKb.ItsmKbInfo>
                 action {
                     reactions.run {
-                        val title = request.input.replace("как ", "").replace("?", "")
+                        val title = request.input.replace("как ", "").replace("про ", "").replace("?", "")
                         articles = MainScenario.server.findArticle(title)
                         when {
                             articles.isEmpty() -> {
@@ -46,6 +46,7 @@ object FindKnowledgeBase : Scenario() {
                                 val titleArticles: Array<Button> =
                                     (articles.map { Button(it.title, hide = false) }).toTypedArray()
                                 alice?.buttons(*titleArticles)
+                                alice?.say(text ="", tts = articles.map { it.title }.toString())
                                 telegram?.say("Найдены статьи", articles.map { it.title })
                             }
                         }

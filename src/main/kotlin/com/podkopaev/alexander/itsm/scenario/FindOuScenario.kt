@@ -4,6 +4,7 @@ import com.justai.jaicf.channel.telegram.telegram
 import com.justai.jaicf.channel.yandexalice.alice
 import com.justai.jaicf.channel.yandexalice.api.model.Button
 import com.justai.jaicf.model.scenario.Scenario
+import com.podkopaev.alexander.itsm.scenario.MainScenario.LOG
 import com.podkopaev.alexander.itsm.scenario.MainScenario.server
 
 object FindOuScenario : Scenario() {

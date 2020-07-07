@@ -3,22 +3,28 @@ package com.podkopaev.alexander.itsm.scenario
 import com.justai.jaicf.channel.telegram.telegram
 import com.justai.jaicf.channel.yandexalice.AliceEvent
 import com.justai.jaicf.channel.yandexalice.alice
-import com.justai.jaicf.channel.yandexalice.api.alice
-import com.justai.jaicf.channel.yandexalice.api.model.Button
 import com.justai.jaicf.model.scenario.Scenario
 import com.podkopaev.alexander.itsm.globalitsm.ItsmServer
 import com.podkopaev.alexander.itsm.naumen.NaumenServer
-import com.podkopaev.alexander.itsm.globalitsm.model.ItsmKb
-import me.ivmg.telegram.entities.KeyboardButton
 import me.ivmg.telegram.entities.KeyboardReplyMarkup
-import me.ivmg.telegram.entities.ReplyKeyboardRemove
 
-val LOG: Boolean = true
 
 object MainScenario :
-    Scenario(dependencies = listOf(CreateCallScenario, FindOuScenario, FindKnowledgeBase, CheckCallState)) {
+    Scenario(
+        dependencies = listOf(
+            CreateCallScenario,
+            FindOuScenario,
+            FindKnowledgeBase,
+            CheckCallState,
+            AuthenticationScenario
+        )
+    ) {
 
+    val LOG: Boolean = true
     val server: ItsmServer = NaumenServer()
+    lateinit var userUUID: String
+    lateinit var userName: String
+    lateinit var userAccessKey: String
 
     init {
         state("main") {
@@ -28,9 +34,15 @@ object MainScenario :
             }
 
             action {
-                reactions.alice?.sayRandom("Привет.", "Здравствуйте.", "Добрый день.")
-                reactions.telegram?.sayRandom("Привет.", "Здравствуйте.", "Добрый день.")
-                reactions.go("/main/start")
+                reactions.sayRandom("Привет.", "Здравствуйте.", "Добрый день.")
+//                reactions.go("/main/start")
+                reactions.go("/main/auth")
+            }
+
+            state("auth") {
+                action {
+                    reactions.go(AuthenticationScenario.state)
+                }
             }
 
             state("start") {
@@ -46,11 +58,13 @@ object MainScenario :
                     reactions.buttons("Создать заявку", "Найти отдел", "Открыть базу знаний", "Проверить статус")
 
                     reactions.telegram?.say(
-                        "Что делаем?",
+                        "${userName}, что делаем?",
                         replyMarkup = KeyboardReplyMarkup.createSimpleKeyboard(
                             listOf(
                                 listOf("Создать заявку", "Найти отдел"),
-                                listOf("Открыть базу знаний", "Проверить статус")
+                                listOf("Открыть базу знаний", "Проверить статус"),
+                                listOf("Покажи меня")
+
                             ),
                             resizeKeyboard = true,
                             oneTimeKeyboard = true,
@@ -91,12 +105,61 @@ object MainScenario :
                 state("checkState") {
                     activators {
                         regex("проверить статус")
+                        regex("статус заявки")
+
                     }
 
                     action {
                         reactions.go(CheckCallState.state)
                     }
                 }
+            }
+        }
+
+        state("fastFindKnowledgeBase") {
+            activators {
+                regex(".*база знаний.*")
+                regex(".*базу знаний.*")
+                regex(".*как.*")
+                regex(".*про.*")
+
+
+            }
+            action {
+                reactions.go(FindKnowledgeBase.state + "/findArticle")
+            }
+        }
+
+        state("fastCreateCall") {
+            activators {
+                regex("создать заявку")
+            }
+            action {
+                reactions.go(CreateCallScenario.state)
+            }
+        }
+
+        state("fastFindOU") {
+            activators {
+                regex("отдел")
+            }
+
+            action {
+                reactions.go(FindOuScenario.state)
+            }
+        }
+
+
+
+        state("fastCheckstateCall") {
+            activators {
+                regex("проверить статус")
+                regex("статус заявки")
+
+            }
+
+            action {
+                reactions.go(CheckCallState.state)
             }
         }
 
@@ -115,7 +178,7 @@ object MainScenario :
         state("no") {
             activators {
                 regex("нет")
-                regex("Нет")
+                regex("нет спасибо")
                 regex("отбой")
                 regex("спасибо")
                 regex("выйти")
@@ -148,7 +211,17 @@ object MainScenario :
                 reactions.alice?.say("Попробуйте еще раз сначала", "Что-то пошло не так...")
                 reactions.alice?.endSession()
 
-                reactions.telegram?.say("Что-то пошло не так... Попробуйте еще раз сначала", listOf("Restart"))
+                reactions.telegram?.say(
+                    "Что-то пошло не так... Попробуйте еще раз сначала",
+                    replyMarkup = KeyboardReplyMarkup.createSimpleKeyboard(
+                        listOf(
+                            listOf("Restart")
+                        ),
+                        resizeKeyboard = true,
+                        oneTimeKeyboard = true,
+                        selective = true
+                    )
+                )
             }
         }
     }
