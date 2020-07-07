@@ -1,1 +1,1 @@
-web: java -jar target/alice-naumen-new-1.0.0.jar
+web: java -jar build/libs/alice-naumen-new-1.0.0.jar
