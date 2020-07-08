@@ -4,7 +4,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "5.0.0"
 }
 
-group = "com.podkopaev.alexander"
+group = "com.podkopaev.alexander.itsm"
 version = "1.0.0"
 
 val jaicf = "0.4.3"
@@ -36,7 +36,6 @@ dependencies {
     implementation("com.justai.jaicf:yandex-alice:$jaicf")
     implementation("com.justai.jaicf:telegram:$jaicf")
 
-
     implementation("io.ktor:ktor-server-netty:$ktor")
 }
 
@@ -57,6 +56,12 @@ tasks.withType<Jar> {
             )
         )
     }
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
 }
 
 tasks.create("stage") {
