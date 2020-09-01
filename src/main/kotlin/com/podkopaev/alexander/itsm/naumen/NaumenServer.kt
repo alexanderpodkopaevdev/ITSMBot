@@ -98,31 +98,38 @@ $input",
             calls.add(Gson().fromJson(responseString, NaumenCall.NaumenServiceCall::class.java))
         }
         return calls
-        // https://softline-presale.itsm365.com/sd/services/rest/search/serviceCall/%7Bnumber:80%7D/?accessKey=589caa54-2528-45c3-b16c-86be9f2081c5
-        // https://softline-presale.itsm365.com/sd/services/rest/get/serviceCall$2377209/?accessKey=589caa54-2528-45c3-b16c-86be9f2081c5
 
     }
 
     override fun getUserByTelegramID(telegramId: Long?): NaumenEmployee.NaumenEmployeeInfo? {
-/*        val findUser =
-            "${NaumenData.SERVER_URL}/services/rest/search/employee/%7Btelegram:\"${telegramId}\"%7D/?${NaumenData.ACCESS_KEY}"
-        var responseString = requestToServer(findUser)
-        val listUsers = convertJsonToList(responseString)
-        val users = mutableListOf<NaumenEmployee.NaumenEmployeeInfo>()
-        for (user in listUsers) {
-            if (user.isNullOrEmpty()) break
-            val getUserUrl =
-                "${NaumenData.SERVER_URL}/services/rest/get/${user.replace(
-                    "\"",
-                    ""
-                )}?${NaumenData.ACCESS_KEY}"
-            responseString = requestToServer(getUserUrl)
-            users.add(Gson().fromJson(responseString, NaumenEmployee.NaumenEmployeeInfo::class.java))
-        }
-        return if (users.size > 0) users[0] else null*/
 
         val findUser =
             "${NaumenData.SERVER_URL}/services/rest/find/employee/%7Btelegram:\"${telegramId}\"%7D/?${NaumenData.ACCESS_KEY}"
+        val responseString = requestToServer(findUser)
+        if (LOG) println(responseString)
+
+        if (LOG) println(convertJsonToNormal(responseString))
+        val user = Gson().fromJson(convertJsonToNormal(responseString), NaumenEmployee.NaumenEmployeeInfo::class.java)
+        if (LOG) println(user)
+        return user
+
+    }
+
+    override fun getUserByAliceId(userId: String?): ItsmEmployee.ItsmEmployeeInfo? {
+        val findUser =
+            "${NaumenData.SERVER_URL}/services/rest/find/employee/%7Btelegram:\"${userId}\"%7D/?${NaumenData.ACCESS_KEY}"
+        val responseString = requestToServer(findUser)
+        if (LOG) println(responseString)
+
+        if (LOG) println(convertJsonToNormal(responseString))
+        val user = Gson().fromJson(convertJsonToNormal(responseString), NaumenEmployee.NaumenEmployeeInfo::class.java)
+        if (LOG) println(user)
+        return user
+    }
+
+    override fun getUserBySdId(userId: String?): ItsmEmployee.ItsmEmployeeInfo? {
+        val findUser =
+            "${NaumenData.SERVER_URL}/services/rest/find/employee/%7Buuid:\"${userId}\"%7D/?${NaumenData.ACCESS_KEY}"
         val responseString = requestToServer(findUser)
         if (LOG) println(responseString)
 
@@ -149,24 +156,6 @@ $input",
     }
 
     override fun getUserByPhone(phoneNumber: String?): NaumenEmployee.NaumenEmployeeInfo? {
-/*        val findUser =
-            "${NaumenData.SERVER_URL}/services/rest/search/employee/%7BmobilePhoneNumber:\"${phoneNumber}\"%7D/?${NaumenData.ACCESS_KEY}"
-        var responseString = requestToServer(findUser)
-        val listUsers = convertJsonToList(responseString)
-        val users = mutableListOf<NaumenEmployee.NaumenEmployeeInfo>()
-        for (user in listUsers) {
-            if (user.isNullOrEmpty()) break
-            val getUserUrl =
-                "${NaumenData.SERVER_URL}/services/rest/get/${user.replace(
-                    "\"",
-                    ""
-                )}?${NaumenData.ACCESS_KEY}"
-            responseString = requestToServer(getUserUrl)
-            users.add(Gson().fromJson(responseString, NaumenEmployee.NaumenEmployeeInfo::class.java))
-        }
-        return if (users.size > 0) users[0] else null*/
-
-
         val findUser =
             "${NaumenData.SERVER_URL}/services/rest/find/employee/%7BmobilePhoneNumber:\"${phoneNumber}\"%7D/?${NaumenData.ACCESS_KEY}"
         val responseString = requestToServer(findUser)

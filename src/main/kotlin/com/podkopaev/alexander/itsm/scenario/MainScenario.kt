@@ -28,8 +28,6 @@ object MainScenario :
     lateinit var userAccessKey: String
 
     init {
-
-
         state("main") {
             activators {
                 event(AliceEvent.START)
@@ -37,7 +35,7 @@ object MainScenario :
             }
 
             action {
-                reactions.sayRandom("Привет.", "Здравствуйте.", "Добрый день.")
+//                reactions.sayRandom("Привет.", "Здравствуйте.", "Добрый день.")
 //                reactions.go("/main/start")
                 reactions.go("/main/auth")
             }
@@ -60,7 +58,7 @@ object MainScenario :
                     )
                     reactions.buttons("Создать заявку", "Найти отдел", "Открыть базу знаний", "Проверить статус")
 
-                    reactions.telegram?.say(
+/*                    reactions.telegram?.say(
                         "${userName}, что делаем?",
                         replyMarkup = KeyboardReplyMarkup.createSimpleKeyboard(
                             listOf(
@@ -73,7 +71,7 @@ object MainScenario :
                             oneTimeKeyboard = true,
                             selective = true
                         )
-                    )
+                    )*/
                 }
 
                 state("createCall") {

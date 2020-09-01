@@ -1,7 +1,8 @@
 package com.podkopaev.alexander.itsm.scenario
 
-import com.justai.jaicf.channel.telegram.TelegramEvent
 import com.justai.jaicf.channel.telegram.telegram
+import com.justai.jaicf.channel.yandexalice.alice
+import com.justai.jaicf.channel.yandexalice.api.alice
 import com.justai.jaicf.model.scenario.Scenario
 import com.podkopaev.alexander.itsm.globalitsm.model.ItsmEmployee
 import com.podkopaev.alexander.itsm.scenario.MainScenario.LOG
@@ -9,8 +10,6 @@ import com.podkopaev.alexander.itsm.scenario.MainScenario.server
 import com.podkopaev.alexander.itsm.scenario.MainScenario.userAccessKey
 import com.podkopaev.alexander.itsm.scenario.MainScenario.userName
 import com.podkopaev.alexander.itsm.scenario.MainScenario.userUUID
-import me.ivmg.telegram.entities.KeyboardButton
-import me.ivmg.telegram.entities.KeyboardReplyMarkup
 
 object AuthenticationScenario : Scenario() {
     const val state = "/authentication"
@@ -21,28 +20,33 @@ object AuthenticationScenario : Scenario() {
 
         state(state) {
             action {
-                val message = request.telegram?.message
-                userSD = server.getUserByTelegramID(message?.from?.id)
+                val userId = request.alice?.session?.userId
+                //val message = request.telegram?.message
+                //userSD = server.getUserByTelegramID(message?.from?.id)
+                userSD = server.getUserByAliceId(userId)
                 if (userSD != null) {
-                    if (LOG) println("find user ${message?.from?.id}")
-                    if (LOG) println("chat ID ${message}")
-                    if (LOG) println("chat ID ${message?.chat}")
+                    /* if (LOG) println("find user ${message?.from?.id}")
+                     if (LOG) println("chat ID ${message}")
+                     if (LOG) println("chat ID ${message?.chat}")*/
 
                     userUUID = userSD?.UUID.toString()
                     userName = userSD?.title.toString()
                     userAccessKey = userSD?.accessKey.toString()
+                    reactions.alice?.say("Здравствуйте, ${userName},")
                     reactions.go("/main/start/")
                 } else {
-                    if (LOG) println("User don't find by telegramID ${message?.from?.id}")
+                    /* if (LOG) println("User don't find by telegramID ${message?.from?.id}")
 
-                    if (LOG) println("chat ID ${message}")
-                    if (LOG) println("chat ID ${message?.chat}")
-                    reactions.go("/getUserByPhone")
+                     if (LOG) println("chat ID ${message}")
+                     if (LOG) println("chat ID ${message?.chat}")*/
+//                    reactions.go("/getUserByPhone")
+                    reactions.go("/findUserToAuth")
+
                 }
             }
         }
 
-        state("/getUserByPhone") {
+/*        state("/getUserByPhone") {
             action {
 
                 reactions.telegram?.say(
@@ -142,6 +146,69 @@ object AuthenticationScenario : Scenario() {
                 }
 
 
+            }
+        }*/
+
+
+        state("/findUserToAuth") {
+            action {
+
+                reactions.say("Для аутентификации, скажите ваш ID в системе")
+                reactions.go("/checkUserId")
+            }
+            state("/checkUserId") {
+
+                action {
+                    val message = request.alice?.request?.command
+                    //reactions.say(message.toString())
+                    //reactions.say(message?.contact.toString())
+                    userSD = server.getUserBySdId(message)
+                    if (userSD != null) {
+                        if (LOG) println("find user by id $userSD")
+                        reactions.alice?.say("Вас зовут ${userSD?.title}?")
+
+                    } else {
+                        if (LOG) println("User don't find by id")
+                        reactions.say("Обратитесь в тех. поддержку")
+                        reactions.go("/main/no")
+                    }
+                }
+
+                state("acceptUser") {
+                    activators {
+                        regex("да")
+                    }
+                    action {
+                        if (LOG) println("user $userSD need update")
+                        val message = request.alice?.session?.userId?.toLong()
+                        val response = server.setTelegramIdForUser(userSD, message)
+                        if (response == "Operation completed successfull") {
+                            if (LOG) println("user $userSD update")
+
+                            reactions.telegram?.say(
+                                "Учетная запись обновлена"
+                            )
+                            userUUID = userSD?.UUID.toString()
+                            userName = userSD?.title.toString()
+                            userAccessKey = userSD?.accessKey.toString()
+                            reactions.go("/main/start/")
+
+                        } else {
+                            reactions.say("Учетная запись не обновлена. Для настройки аутентификации свяжитесь с технической поддежркой")
+                            reactions.go("/goodbye")
+                        }
+                    }
+                }
+
+                state("declineUser") {
+                    activators {
+                        regex("нет")
+                    }
+                    action {
+                        reactions.say("Обратитесь в тех. поддержку")
+                        reactions.go("/goodbye")
+                    }
+                }
             }
         }
 
