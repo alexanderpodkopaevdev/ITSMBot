@@ -12,7 +12,7 @@ val slf4j = "1.7.30"
 val ktor = "1.3.1"
 
 application {
-    mainClassName = "com.podkopaev.alexander.itsm.TelegramKt"
+    mainClassName = "com.podkopaev.alexander.itsm.Webhook.kt"
 }
 
 repositories {
