@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.podkopaev.alexander.itsm"
-version = "1.0.0"
+version = "1.0.1"
 
 val jaicf = "0.4.3"
 val slf4j = "1.7.30"
