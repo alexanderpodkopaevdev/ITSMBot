@@ -153,7 +153,7 @@ object AuthenticationScenario : Scenario() {
         state("/findUserToAuth") {
             action {
                 reactions.say("Для аутентификации, скажите ваш ID в системе")
-                reactions.buttons("нет")
+                reactions.buttons("да","нет")
 
             }
             state("/checkUserId") {
@@ -207,7 +207,7 @@ object AuthenticationScenario : Scenario() {
                         regex("нет")
                     }
                     action {
-                        reactions.say("Обратитесь в тех. поддержку")
+                        reactions.say("Свяжитесь с тех. поддержкой")
                         reactions.go("/goodbye")
                     }
                 }
