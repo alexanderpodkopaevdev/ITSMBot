@@ -13,6 +13,7 @@ interface ItsmServer {
     fun findCall(text: String?): List<ItsmCall.ItsmServiceCall>
     fun getUserByTelegramID(telegramId: Long?) : ItsmEmployee.ItsmEmployeeInfo?
     fun setTelegramIdForUser(sdUser: ItsmEmployee.ItsmEmployeeInfo?, telegramId: Long?): String
+    fun setAliceIdForUser(sdUser: ItsmEmployee.ItsmEmployeeInfo?, AliceId: String?): String
     fun getUserByPhone(phoneNumber: String?): ItsmEmployee.ItsmEmployeeInfo?
     fun getUserByAliceId(userId: String?): ItsmEmployee.ItsmEmployeeInfo?
     fun getUserBySdId(userId: String?): ItsmEmployee.ItsmEmployeeInfo?

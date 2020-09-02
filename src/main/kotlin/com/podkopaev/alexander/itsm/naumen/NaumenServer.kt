@@ -155,6 +155,21 @@ $input",
 
     }
 
+    override fun setAliceIdForUser(sdUser: ItsmEmployee.ItsmEmployeeInfo?, AliceId: String?): String {
+        val attr = """
+{"telegram":"$AliceId"}
+        """
+        val newUrl =
+            "${NaumenData.SERVER_URL}/services/rest/edit/${sdUser?.UUID}/${attr}?${NaumenData.ACCESS_KEY}"
+
+        if (LOG) println(newUrl)
+
+        val responseString = requestToServer(newUrl)
+
+        return responseString.substring(0, if (responseString.length < 100) responseString.length - 1 else 100)
+
+    }
+
     override fun getUserByPhone(phoneNumber: String?): NaumenEmployee.NaumenEmployeeInfo? {
         val findUser =
             "${NaumenData.SERVER_URL}/services/rest/find/employee/%7BmobilePhoneNumber:\"${phoneNumber}\"%7D/?${NaumenData.ACCESS_KEY}"

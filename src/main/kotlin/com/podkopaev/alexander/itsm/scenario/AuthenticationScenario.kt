@@ -153,17 +153,16 @@ object AuthenticationScenario : Scenario() {
         state("/findUserToAuth") {
             action {
                 reactions.say("Для аутентификации, скажите ваш ID в системе")
-                    // reactions.buttons("да","нет")
-
             }
+
             state("/checkUserId") {
                 activators {
-                    catchAll()
+                    regex(".*")
                 }
                 action {
 
                     val message = request.alice?.request?.command
-                    if (LOG) println(message)
+                    if (LOG) println("message $message")
 
                     //reactions.say(message.toString())
                     //reactions.say(message?.contact.toString())
@@ -185,8 +184,8 @@ object AuthenticationScenario : Scenario() {
                     }
                     action {
                         if (LOG) println("user $userSD need update")
-                        val message = request.alice?.session?.userId?.toLong()
-                        val response = server.setTelegramIdForUser(userSD, message)
+                        val message = request.alice?.session?.userId
+                        val response = server.setAliceIdForUser(userSD,message)
                         if (response == "Operation completed successfull") {
                             if (LOG) println("user $userSD update")
 
@@ -215,16 +214,18 @@ object AuthenticationScenario : Scenario() {
                     }
                 }
             }
+
+            state("repeat") {
+                activators {
+                    regex("еще")
+                }
+                action {
+                    reactions.go(AuthenticationScenario.state)
+                }
+            }
         }
 
-        state("repeat") {
-            activators {
-                regex("еще")
-            }
-            action {
-                reactions.go(AuthenticationScenario.state)
-            }
-        }
+
     }
 }
 
