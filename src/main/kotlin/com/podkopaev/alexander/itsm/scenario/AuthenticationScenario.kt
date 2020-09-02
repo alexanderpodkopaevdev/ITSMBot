@@ -152,13 +152,11 @@ object AuthenticationScenario : Scenario() {
 
         state("/findUserToAuth") {
             action {
-
                 reactions.say("Для аутентификации, скажите ваш ID в системе")
-
             }
             state("/checkUserId") {
                 activators {
-                    regex("*")
+                    catchAll()
                 }
                 action {
                     val message = request.alice?.request?.command
