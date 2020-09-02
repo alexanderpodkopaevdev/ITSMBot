@@ -153,6 +153,8 @@ object AuthenticationScenario : Scenario() {
         state("/findUserToAuth") {
             action {
                 reactions.say("Для аутентификации, скажите ваш ID в системе")
+                reactions.buttons("нет")
+
             }
             state("/checkUserId") {
                 activators {
@@ -169,7 +171,7 @@ object AuthenticationScenario : Scenario() {
 
                     } else {
                         if (LOG) println("User don't find by id")
-                        reactions.say("Обратитесь в тех. поддержку")
+                        reactions.say("Обратитесь в тех поддержку")
                         reactions.go("/main/no")
                     }
                 }
