@@ -153,7 +153,7 @@ object AuthenticationScenario : Scenario() {
         state("/findUserToAuth") {
             action {
                 reactions.say("Для аутентификации, скажите ваш ID в системе")
-                reactions.buttons("да","нет")
+                    // reactions.buttons("да","нет")
 
             }
             state("/checkUserId") {
@@ -161,7 +161,10 @@ object AuthenticationScenario : Scenario() {
                     catchAll()
                 }
                 action {
+
                     val message = request.alice?.request?.command
+                    if (LOG) println(message)
+
                     //reactions.say(message.toString())
                     //reactions.say(message?.contact.toString())
                     userSD = server.getUserBySdId(message)
