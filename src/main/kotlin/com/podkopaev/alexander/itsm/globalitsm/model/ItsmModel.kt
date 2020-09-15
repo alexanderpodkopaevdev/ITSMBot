@@ -18,6 +18,7 @@ abstract class ItsmCall {
     abstract class ItsmServiceCall {
         var title: String = ""
         var state: String = ""
+        var shortDescr: String = ""
     }
 }
 

@@ -68,7 +68,7 @@ class NaumenCall : ItsmCall() {
         val rfcResults: List<Any>,
         val service: Any,
         val serviceTime: Any,
-        val shortDescr: String,
+//        val shortDescr: String,
         val slaved: Boolean,
         val solvedBy: Any,
         val solvedByEmployee: Any,
