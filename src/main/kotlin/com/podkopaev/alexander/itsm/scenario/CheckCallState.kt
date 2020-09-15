@@ -38,7 +38,7 @@ object CheckCallState : Scenario() {
                                     "resolved" -> "Выполнена"
                                     else -> (calls[0].state)
                                 }
-                                say("Найдена заявка ${calls[0].title}. Статус заявки: ${calls[0].state}")
+                                say("Найдена заявка ${calls[0].title}. Статус заявки: $stateName")
                                 reactions.alice?.say(
                                     "\nХотите сделать что-то еще?"
                                 )
