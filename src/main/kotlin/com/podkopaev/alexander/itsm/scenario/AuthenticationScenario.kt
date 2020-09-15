@@ -156,7 +156,7 @@ object AuthenticationScenario : Scenario() {
             }
 
             state("/checkUserId") {
-                activators {
+               // activators {
                    // regex(".*")
                     catchAll()
                 }
