@@ -31,6 +31,13 @@ object CheckCallState : Scenario() {
                                 go("/main/start")
                             }
                             calls.size == 1 -> {
+                                val stateName = when (calls[0].state) {
+                                    "registered" -> "Новая"
+                                    "closed" -> "Закрыто"
+                                    "inprogress" -> "В работе"
+                                    "resolved" -> "Выполнена"
+                                    else -> (calls[0].state)
+                                }
                                 say("Найдена заявка ${calls[0].title}. Статус заявки: ${calls[0].state}")
                                 reactions.alice?.say(
                                     "\nХотите сделать что-то еще?"

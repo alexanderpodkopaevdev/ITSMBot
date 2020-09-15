@@ -35,8 +35,6 @@ object MainScenario :
             }
 
             action {
-//                reactions.sayRandom("Привет.", "Здравствуйте.", "Добрый день.")
-//                reactions.go("/main/start")
                 reactions.go("/main/auth")
             }
 
@@ -48,7 +46,6 @@ object MainScenario :
 
             state("start") {
                 activators {
-                    //   event(AliceEvent.START)
                 }
 
                 action {
@@ -57,21 +54,6 @@ object MainScenario :
                         tts = "Чем займемся?"
                     )
                     reactions.buttons("Создать заявку", "Найти отдел", "Открыть базу знаний", "Проверить статус")
-
-/*                    reactions.telegram?.say(
-                        "${userName}, что делаем?",
-                        replyMarkup = KeyboardReplyMarkup.createSimpleKeyboard(
-                            listOf(
-                                listOf("Создать заявку", "Найти отдел"),
-                                listOf("Открыть базу знаний", "Проверить статус"),
-                                listOf("Покажи меня")
-
-                            ),
-                            resizeKeyboard = true,
-                            oneTimeKeyboard = true,
-                            selective = true
-                        )
-                    )*/
                 }
 
                 state("createCall") {
