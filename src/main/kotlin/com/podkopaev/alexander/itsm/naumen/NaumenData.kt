@@ -5,4 +5,5 @@ object NaumenData {
     val ACCESS_KEY = System.getenv("ACCESS_KEY")// ?: NaumenDataHide.ACCESS_KEY
     val TELEGRAM_TOKEN = System.getenv("TELEGRAM_TOKEN") //?: NaumenDataHide.TELEGRAM_TOKEN
     val OAUTH_TOKEN = System.getenv("OAUTH_TOKEN")// ?: NaumenDataHide.OAUTH_TOKEN
+    val USER_ID = System.getenv("USER_ID")// ?: NaumenDataHide.USER_ID
 }

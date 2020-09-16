@@ -5,6 +5,7 @@ import com.justai.jaicf.channel.yandexalice.alice
 import com.justai.jaicf.channel.yandexalice.api.alice
 import com.justai.jaicf.model.scenario.Scenario
 import com.podkopaev.alexander.itsm.globalitsm.model.ItsmEmployee
+import com.podkopaev.alexander.itsm.naumen.NaumenData
 import com.podkopaev.alexander.itsm.scenario.MainScenario.LOG
 import com.podkopaev.alexander.itsm.scenario.MainScenario.server
 import com.podkopaev.alexander.itsm.scenario.MainScenario.userAccessKey
@@ -20,7 +21,8 @@ object AuthenticationScenario : Scenario() {
 
         state(state) {
             action {
-                val userId = request.alice?.session?.userId
+                //val userId = request.alice?.session?.userId
+                val userId = NaumenData.USER_ID
                 //val message = request.telegram?.message
                 //userSD = server.getUserByTelegramID(message?.from?.id)
                 userSD = server.getUserByAliceId(userId)
